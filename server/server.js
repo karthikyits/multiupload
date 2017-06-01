@@ -71,10 +71,7 @@ app.post('/api/photo',function(req,res){
           }
         });
       });
-
-
     }
-
   });
 });
 // Bootstrap the application, configure models, datasources and middleware.
