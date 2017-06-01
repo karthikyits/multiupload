@@ -36,7 +36,7 @@ app.get('/',function(req,res){
 app.post('/api/photo',function(req,res){
   upload(req,res,function(err) {
     //console.log(req.body);
-    console.log(req.files);
+    //console.log(req.files);
     if(err) {
       return res.end("Error uploading file.");
     } else {
