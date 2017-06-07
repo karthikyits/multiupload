@@ -3,13 +3,13 @@
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 var proxy = require('proxy-agent');
-var bucketName = 'yits';
+var bucketName = 'telepathyprofilepic';
 
 var app = module.exports = loopback();
 var multer  =   require('multer');
 var storage =   multer.diskStorage({
   destination: function (req, file, callback) {
-    callback(null, 'd:/uploads');
+    callback(null, process.env.temp);
   },
   filename: function (req, file, callback) {
     callback(null, file.originalname );
@@ -49,28 +49,31 @@ app.post('/api/photo',function(req,res){
         httpOptions: { agent: proxy('<<proxy_url>>') }
       });*/
       var s3Bucket = new AWS.S3( { params: {Bucket: bucketName} } );
+	  //console.log(s3Bucket);
+	  //for(var i = 0 ; i < req.files.length; i++ ){
+		  fs.readFile(req.files[0].path, function (err, data) {
+			var params  = {
+			  Key: req.files[0].originalname,
+			  Body: data,
+			  ContentType: req.files[0].mimetype,
+			  ACL:'public-read'
 
-      fs.readFile(req.files[0].path, function (err, data) {
-        var params  = {
-          Key: req.files[0].originalname,
-          Body: data,
-          ContentType: req.files[0].mimetype,
-          ACL:'public-read'
-
-        };
-        s3Bucket.putObject(params , function(err, data){
-          if (err) {
-            console.log(err);
-            console.log('Error uploading data: ', params);
-          } else {
-            console.log('Successfully uploaded the image!');
-            var link = s3Bucket.endpoint.href+bucketName +'/'+ params.Key;
-            console.log('link -> ' + link);
-            res.write("File is Uploaded, Download link : ");
-            res.end(link);
-          }
-        });
-      });
+			};
+			s3Bucket.putObject(params , function(err, data){
+			  if (err) {
+				console.log(err);
+				console.log('Error uploading data: ', params);
+			  } else {
+				console.log('Successfully uploaded the image!');
+				console.log(data);
+				var link = s3Bucket.endpoint.href+bucketName +'/'+ params.Key;
+				console.log('link -> ' + link);
+				res.write("File is uploaded successfully ## Download link : ");
+				res.end(link);
+			  }
+			});
+		  });
+	  //}
     }
   });
 });
